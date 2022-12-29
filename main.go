@@ -19,7 +19,7 @@ func main() {
 }
 
 func server() {
-	s := znet.NewService("[server v0.1]")
+	s := znet.NewService("[server v0.2]")
 	s.Serve()
 }
 
@@ -32,7 +32,7 @@ func client() {
 	}
 
 	for {
-		_, err := conn.Write([]byte("hello server v1.0"))
+		_, err := conn.Write([]byte("hello server v0.2"))
 		if err != nil {
 			fmt.Println("write conn error: ", err)
 			return
