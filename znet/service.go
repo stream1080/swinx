@@ -1,6 +1,7 @@
 package znet
 
 import (
+	"errors"
 	"fmt"
 	"net"
 
@@ -25,6 +26,18 @@ func NewService(name string) ziface.Service {
 	}
 }
 
+// 回调的业务方法
+func CallBack(conn *net.TCPConn, data []byte, cnt int) error {
+	fmt.Println("[Conn Handle] CallBack...")
+	_, err := conn.Write(data[:cnt])
+	if err != nil {
+		fmt.Println("write callback error: ", err)
+		return errors.New("CallBack error")
+	}
+
+	return nil
+}
+
 // 启动服务器
 func (s *Service) Start() {
 	fmt.Printf("[Start] Server Listenner at IP: %s, Port: %d, is starting \n", s.IP, s.Port)
@@ -46,6 +59,9 @@ func (s *Service) Start() {
 
 		fmt.Println("start Zinx server successful ", s.Name, " Listenning...")
 
+		// 连接 id
+		connId := uint32(0)
+
 		// 3. 阻塞等待客户端连接，处理客户端连接
 		for {
 			conn, err := listener.AcceptTCP()
@@ -54,26 +70,12 @@ func (s *Service) Start() {
 				continue
 			}
 
-			// 客户端建立连接
-			go func() {
-				for {
-					buf := make([]byte, 512)
-					cnt, err := conn.Read(buf)
-					if err != nil {
-						fmt.Println("Read buf error: ", err)
-						continue
-					}
+			// 将处理连接到业务方法与 conn 进行绑定
+			dealConn := NewConnect(conn, connId, CallBack)
+			connId++
 
-					fmt.Printf("recv client buf %s, cnt %d\n", buf, cnt)
-
-					// 回显
-					_, err = conn.Write(buf[:cnt])
-					if err != nil {
-						fmt.Println("write back buf error: ", err)
-						continue
-					}
-				}
-			}()
+			// 启动 conn 的业务处理
+			go dealConn.Start()
 		}
 	}()
 }
