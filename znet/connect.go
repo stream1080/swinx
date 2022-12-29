@@ -1,6 +1,7 @@
 package znet
 
 import (
+	"fmt"
 	"net"
 
 	"github.com/stream1080/zinx/ziface"
@@ -23,4 +24,75 @@ func NewConnect(conn *net.TCPConn, connId uint32, callBackApi ziface.HandleFunc)
 		handleApi: callBackApi,
 		ExitChan:  make(chan bool, 1),
 	}
+}
+
+func (c *Connect) StartReader() {
+	fmt.Println("Reader Goroutine is running... ")
+	defer fmt.Println("ConnId: ", c.ConnId, " Reader is exit, remote addr is ", c.RemoteAddr().String())
+	defer c.Stop()
+
+	for {
+		// 读取客户端的数据到 buf
+		buf := make([]byte, 512)
+		cnt, err := c.Conn.Read(buf)
+		if err != nil {
+			fmt.Println("recv buf error ", err)
+			continue
+		}
+
+		// 调用当前连接绑定的 HandleApi
+		err = c.handleApi(c.Conn, buf, cnt)
+		if err != nil {
+			fmt.Println("ConnId: ", c.ConnId, " handle is error: ", err)
+			break
+		}
+	}
+}
+
+// 启动连接
+func (c *Connect) Start() {
+	fmt.Println("Connect Start()... ConnId: ", c.ConnId)
+
+	// 从当前连接读数据
+	go c.StartReader()
+
+	// TODO 从当前连接写数据
+}
+
+// 关闭连接
+func (c *Connect) Stop() {
+	fmt.Println("Connect Stop()... ConnId: ", c.ConnId)
+
+	// 判断是否关闭
+	if c.isClosed {
+		return
+	}
+
+	c.isClosed = false
+
+	// 关闭连接
+	c.Conn.Close()
+
+	// 回收资源
+	close(c.ExitChan)
+}
+
+// 获取当前连接绑定的 socket conn
+func (c *Connect) GetTCPConnect() *net.TCPConn {
+	return c.Conn
+}
+
+// 获取当前连接的 Id
+func (c *Connect) GetConnId() uint32 {
+	return c.ConnId
+}
+
+// 获取远程客户端的 TCP 状态 Ip，Port
+func (c *Connect) RemoteAddr() net.Addr {
+	return c.Conn.RemoteAddr()
+}
+
+// 发送数据
+func (c *Connect) Send(data []byte) error {
+	return nil
 }
