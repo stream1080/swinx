@@ -1,7 +1,6 @@
 package znet
 
 import (
-	"errors"
 	"fmt"
 	"net"
 
@@ -10,10 +9,11 @@ import (
 
 // Service 的服务接口实现
 type Service struct {
-	Name      string // 名称
-	IpVersion string // ip版本
-	IP        string // ip地址
-	Port      int    // 端口
+	Name      string        // 名称
+	IpVersion string        // ip版本
+	IP        string        // ip地址
+	Port      int           // 端口
+	Router    ziface.Router // 路由
 }
 
 // 初始化 Service 方法
@@ -23,19 +23,8 @@ func NewService(name string) ziface.Service {
 		IpVersion: "tcp4",
 		IP:        "0.0.0.0",
 		Port:      8888,
+		Router:    nil,
 	}
-}
-
-// 回调的业务方法
-func CallBack(conn *net.TCPConn, data []byte, cnt int) error {
-	fmt.Println("[Conn Handle] CallBack...")
-	_, err := conn.Write(data[:cnt])
-	if err != nil {
-		fmt.Println("write callback error: ", err)
-		return errors.New("CallBack error")
-	}
-
-	return nil
 }
 
 // 启动服务器
@@ -71,7 +60,7 @@ func (s *Service) Start() {
 			}
 
 			// 将处理连接到业务方法与 conn 进行绑定
-			dealConn := NewConnect(conn, connId, CallBack)
+			dealConn := NewConnect(conn, connId, s.Router)
 			connId++
 
 			// 启动 conn 的业务处理
@@ -92,4 +81,10 @@ func (s *Service) Serve() {
 
 	// 阻塞
 	select {}
+}
+
+// 注册路由
+func (s *Service) AddRouter(router ziface.Router) {
+	s.Router = router
+	fmt.Println("Add Router Success! ")
 }
