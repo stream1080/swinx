@@ -2,7 +2,7 @@ package conf
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 )
 
 type Config struct {
@@ -21,7 +21,7 @@ var ServerConfig *Config
 
 // 加载配置
 func (s *Config) LoadConfig() {
-	conf, err := ioutil.ReadFile("conf/conf.json")
+	conf, err := os.ReadFile("conf/conf.json")
 	if err != nil {
 		panic(err)
 	}
