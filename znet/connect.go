@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/stream1080/zinx/conf"
 	"github.com/stream1080/zinx/ziface"
 )
 
@@ -33,7 +34,7 @@ func (c *Connect) StartReader() {
 
 	for {
 		// 读取客户端的数据到 buf
-		buf := make([]byte, 512)
+		buf := make([]byte, conf.ServerConfig.MaxPackageSize)
 		_, err := c.Conn.Read(buf)
 		if err != nil {
 			fmt.Println("recv buf error ", err)

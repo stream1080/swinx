@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/stream1080/zinx/conf"
 	"github.com/stream1080/zinx/ziface"
 )
 
@@ -17,12 +18,12 @@ type Service struct {
 }
 
 // 初始化 Service 方法
-func NewService(name string) ziface.Service {
+func NewService() ziface.Service {
 	return &Service{
-		Name:      name,
+		Name:      conf.ServerConfig.Name,
 		IpVersion: "tcp4",
-		IP:        "0.0.0.0",
-		Port:      8888,
+		IP:        conf.ServerConfig.Host,
+		Port:      conf.ServerConfig.Port,
 		Router:    nil,
 	}
 }
@@ -46,7 +47,7 @@ func (s *Service) Start() {
 			return
 		}
 
-		fmt.Println("start Zinx server successful ", s.Name, " Listenning...")
+		fmt.Printf("start [%s] server successful, Listenning...\n", s.Name)
 
 		// 连接 id
 		connId := uint32(0)
