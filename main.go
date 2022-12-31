@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/stream1080/zinx/ziface"
+	"github.com/stream1080/zinx/face"
 	"github.com/stream1080/zinx/znet"
 )
 
@@ -14,7 +14,7 @@ type PingRouter struct {
 }
 
 // 处理业务前的钩子方法 Hook
-func (p *PingRouter) PreHandle(request ziface.Request) {
+func (p *PingRouter) PreHandle(request face.Request) {
 	fmt.Println("Call Router PreHandle...")
 	_, err := request.GetConn().GetTCPConnect().Write([]byte(" before ping ....\n"))
 	if err != nil {
@@ -23,7 +23,7 @@ func (p *PingRouter) PreHandle(request ziface.Request) {
 }
 
 // 处理业务的主方法 Hook
-func (p *PingRouter) Handle(request ziface.Request) {
+func (p *PingRouter) Handle(request face.Request) {
 	fmt.Println("Call Router Handle...")
 	_, err := request.GetConn().GetTCPConnect().Write([]byte(" before ping ....\n"))
 	if err != nil {
@@ -32,7 +32,7 @@ func (p *PingRouter) Handle(request ziface.Request) {
 }
 
 // 处理业务后的钩子方法 Hook
-func (p *PingRouter) PostHandle(request ziface.Request) {
+func (p *PingRouter) PostHandle(request face.Request) {
 	fmt.Println("Call Router PostHandle...")
 	_, err := request.GetConn().GetTCPConnect().Write([]byte(" after ping ....\n"))
 	if err != nil {

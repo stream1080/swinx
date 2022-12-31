@@ -1,4 +1,4 @@
-package ziface
+package face
 
 // 服务器接口
 type Service interface {

@@ -1,14 +1,14 @@
 package znet
 
-import "github.com/stream1080/zinx/ziface"
+import "github.com/stream1080/zinx/face"
 
 type Request struct {
-	conn ziface.Connect // 当前连接
-	data []byte         // 请求的数据
+	conn face.Connect // 当前连接
+	data []byte       // 请求的数据
 }
 
 // 获取当前的连接
-func (r *Request) GetConn() ziface.Connect {
+func (r *Request) GetConn() face.Connect {
 	return r.conn
 }
 

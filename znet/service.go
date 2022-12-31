@@ -5,20 +5,20 @@ import (
 	"net"
 
 	"github.com/stream1080/zinx/conf"
-	"github.com/stream1080/zinx/ziface"
+	"github.com/stream1080/zinx/face"
 )
 
 // Service 的服务接口实现
 type Service struct {
-	Name      string        // 名称
-	IpVersion string        // ip版本
-	IP        string        // ip地址
-	Port      int           // 端口
-	Router    ziface.Router // 路由
+	Name      string      // 名称
+	IpVersion string      // ip版本
+	IP        string      // ip地址
+	Port      int         // 端口
+	Router    face.Router // 路由
 }
 
 // 初始化 Service 方法
-func NewService() ziface.Service {
+func NewService() face.Service {
 	return &Service{
 		Name:      conf.ServerConfig.Name,
 		IpVersion: "tcp4",
@@ -85,7 +85,7 @@ func (s *Service) Serve() {
 }
 
 // 注册路由
-func (s *Service) AddRouter(router ziface.Router) {
+func (s *Service) AddRouter(router face.Router) {
 	s.Router = router
 	fmt.Println("Add Router Success! ")
 }

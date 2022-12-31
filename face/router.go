@@ -1,4 +1,4 @@
-package ziface
+package face
 
 // 路由接口，用户自定义的 处理业务 方法
 type Router interface {

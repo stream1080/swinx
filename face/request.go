@@ -1,4 +1,4 @@
-package ziface
+package face
 
 // 把客户端请求的链接信息 和 请求的数据 包装到了 Request 里
 type Request interface {
