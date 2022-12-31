@@ -46,21 +46,24 @@ func main() {
 	go server()
 	time.Sleep(2 * time.Second)
 
-	// 启动客户端
-	client()
+	for {
+		// 启动客户端
+		go client()
+		time.Sleep(1 * time.Millisecond)
+	}
 }
 
 func server() {
-	s := znet.NewService("[server v0.3]")
+	s := znet.NewService()
 	s.AddRouter(&PingRouter{})
 	s.Serve()
 }
 
 func client() {
 
-	conn, err := net.Dial("tcp", "127.0.0.1:8888")
+	conn, err := net.Dial("tcp", "127.0.0.1:8889")
 	if err != nil {
-		fmt.Printf("client satrt error: %s \n", err)
+		fmt.Printf("client start error: %s \n", err)
 		return
 	}
 
