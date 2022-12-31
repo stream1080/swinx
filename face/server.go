@@ -1,7 +1,7 @@
 package face
 
 // 服务器接口
-type Service interface {
+type Server interface {
 	Start()                  // 启动服务
 	Stop()                   // 停止服务
 	Serve()                  // 运行服务

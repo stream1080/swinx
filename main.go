@@ -54,7 +54,7 @@ func main() {
 }
 
 func server() {
-	s := znet.NewService()
+	s := znet.NewServer()
 	s.AddRouter(&PingRouter{})
 	s.Serve()
 }

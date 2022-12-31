@@ -6,7 +6,7 @@ import (
 )
 
 type Config struct {
-	//TcpServer face.Service // Tcp 服务器
+	//TcpServer face.Server // Tcp 服务器
 	Name string // 名称
 	Host string // 主机地址
 	Port int    // 端口

@@ -8,8 +8,8 @@ import (
 	"github.com/stream1080/zinx/face"
 )
 
-// Service 的服务接口实现
-type Service struct {
+// Server 的服务接口实现
+type Server struct {
 	Name      string      // 名称
 	IpVersion string      // ip版本
 	IP        string      // ip地址
@@ -17,9 +17,9 @@ type Service struct {
 	Router    face.Router // 路由
 }
 
-// 初始化 Service 方法
-func NewService() face.Service {
-	return &Service{
+// 初始化 Server 方法
+func NewServer() face.Server {
+	return &Server{
 		Name:      conf.ServerConfig.Name,
 		IpVersion: "tcp4",
 		IP:        conf.ServerConfig.Host,
@@ -29,7 +29,7 @@ func NewService() face.Service {
 }
 
 // 启动服务器
-func (s *Service) Start() {
+func (s *Server) Start() {
 	fmt.Printf("[Start] Server Listenner at IP: %s, Port: %d, is starting \n", s.IP, s.Port)
 
 	go func() {
@@ -71,12 +71,12 @@ func (s *Service) Start() {
 }
 
 // 停止服务器
-func (s *Service) Stop() {
+func (s *Server) Stop() {
 	// TODO 回收资源
 }
 
 // 运行服务器
-func (s *Service) Serve() {
+func (s *Server) Serve() {
 	// 启动服务
 	s.Start()
 
@@ -85,7 +85,7 @@ func (s *Service) Serve() {
 }
 
 // 注册路由
-func (s *Service) AddRouter(router face.Router) {
+func (s *Server) AddRouter(router face.Router) {
 	s.Router = router
 	fmt.Println("Add Router Success! ")
 }
