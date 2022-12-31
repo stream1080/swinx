@@ -1,6 +1,6 @@
 package znet
 
-import "github.com/stream1080/zinx/face"
+import "github.com/stream1080/swinx/face"
 
 type Request struct {
 	conn face.Connect // 当前连接

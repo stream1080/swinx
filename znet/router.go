@@ -1,6 +1,6 @@
 package znet
 
-import "github.com/stream1080/zinx/face"
+import "github.com/stream1080/swinx/face"
 
 // 实现 router 时，先嵌入这个基类，然后根据需要对这个基类的方法进行重写
 type BaseRouter struct{}

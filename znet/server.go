@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/stream1080/zinx/conf"
-	"github.com/stream1080/zinx/face"
+	"github.com/stream1080/swinx/conf"
+	"github.com/stream1080/swinx/face"
 )
 
 // Server 的服务接口实现

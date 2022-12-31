@@ -5,8 +5,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/stream1080/zinx/face"
-	"github.com/stream1080/zinx/znet"
+	"github.com/stream1080/swinx/face"
+	"github.com/stream1080/swinx/znet"
 )
 
 type PingRouter struct {
