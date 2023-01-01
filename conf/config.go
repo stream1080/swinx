@@ -14,6 +14,9 @@ type Config struct {
 	Version        string // 服务的版本
 	MaxConn        int    // 最大连接数
 	MaxPackageSize uint32 // 一次请求的最大数据包
+
+	WorkerPoolSize    uint32 // worker 池的大小
+	MaxWorkerTaskSize uint32 // 最大任务数量
 }
 
 // 全局对象
@@ -35,12 +38,14 @@ func (s *Config) LoadConfig() {
 func init() {
 	// 定义默认配置
 	ServerConfig = &Config{
-		Name:           "Tcp-Server",
-		Host:           "0.0.0,0",
-		Port:           8888,
-		Version:        "V0.5",
-		MaxConn:        1000,
-		MaxPackageSize: 4096,
+		Name:              "Tcp-Server",
+		Host:              "0.0.0,0",
+		Port:              8888,
+		Version:           "V0.8",
+		MaxConn:           1000,
+		MaxPackageSize:    4096,
+		WorkerPoolSize:    10,
+		MaxWorkerTaskSize: 1024,
 	}
 
 	// 使用自定义配置
