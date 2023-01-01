@@ -14,6 +14,7 @@ type Connect struct {
 	ConnId    uint32         // 当前连接的Id
 	isClosed  bool           // 当前连接的状态
 	ExitChan  chan bool      // 告知当前连接退出的 chan
+	msgChan   chan []byte    // 无缓冲管道，用于读、写两个 goroutine 之间的消息通信
 	MsgHandle face.MsgHandle // 当前连接处理的方法 handle
 }
 
@@ -25,12 +26,13 @@ func NewConnect(conn *net.TCPConn, connId uint32, msgHandler face.MsgHandle) *Co
 		isClosed:  false,
 		MsgHandle: msgHandler,
 		ExitChan:  make(chan bool, 1),
+		msgChan:   make(chan []byte),
 	}
 }
 
 func (c *Connect) StartReader() {
-	fmt.Println("Reader Goroutine is running... ")
-	defer fmt.Println("ConnId: ", c.ConnId, " Reader is exit, remote addr is ", c.RemoteAddr().String())
+	fmt.Println("[Reader Goroutine is running]")
+	defer fmt.Println("[Connect Reader exit] , RemoteAddr:", c.RemoteAddr().String(), "connId:", c.ConnId)
 	defer c.Stop()
 
 	for {
@@ -80,14 +82,41 @@ func (c *Connect) StartReader() {
 	}
 }
 
+// 写消息 Goroutine， 用户将数据发送给客户端
+func (c *Connect) StartWriter() {
+	fmt.Println("[Writer Goroutine is running]")
+	defer fmt.Println("[Connect Writer exit] , RemoteAddr:", c.RemoteAddr().String(), "connId:", c.ConnId)
+
+	for {
+		select {
+		case data := <-c.msgChan:
+			if _, err := c.Conn.Write(data); err != nil {
+				fmt.Println("[Connect Writer exit] Send Data error:, ", err)
+				return
+			}
+		case <-c.ExitChan:
+			// conn 关闭
+			return
+		}
+	}
+}
+
 // 启动连接
 func (c *Connect) Start() {
 	fmt.Println("Connect Start()... ConnId: ", c.ConnId)
 
-	// 从当前连接读数据
+	// 开启用户从客户端读取数据流程的 Goroutine
 	go c.StartReader()
+	// 开启用于写回客户端数据流程的 Goroutine
+	go c.StartWriter()
 
-	// TODO 从当前连接写数据
+	for {
+		select {
+		case <-c.ExitChan:
+			// 收到退出消息，不再阻塞
+			return
+		}
+	}
 }
 
 // 关闭连接
@@ -137,13 +166,8 @@ func (c *Connect) SendMsg(msgId uint32, data []byte) error {
 		return errors.New("pack error")
 	}
 
-	// 回写客户端
-	_, err = c.Conn.Write(msg)
-	if err != nil {
-		fmt.Printf("write msg error: %s, msgId: %d\n", err, msgId)
-		c.ExitChan <- true
-		return errors.New("conn write error")
-	}
+	// 回写客户端，发送给 Channel 供 Writer 读取
+	c.msgChan <- msg
 
 	return nil
 }
