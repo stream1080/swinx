@@ -41,7 +41,6 @@ func init() {
 		Name:              "Tcp-Server",
 		Host:              "0.0.0,0",
 		Port:              8888,
-		Version:           "V0.8",
 		MaxConn:           1000,
 		MaxPackageSize:    4096,
 		WorkerPoolSize:    10,
