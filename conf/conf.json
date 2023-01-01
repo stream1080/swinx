@@ -1,5 +1,5 @@
 {
-    "Name": "Tcp-Server-V4.0",
+    "Name": "Tcp-Server",
     "Host": "127.0.0.1",
     "Port": 8889,
     "MaxConn": 3
