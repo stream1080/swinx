@@ -10,21 +10,21 @@ import (
 )
 
 type Connect struct {
-	Conn     *net.TCPConn // 当前连接的 TCP 套接字
-	ConnId   uint32       // 当前连接的Id
-	isClosed bool         // 当前连接的状态
-	ExitChan chan bool    // 告知当前连接退出的 chan
-	Router   face.Router  // 当前连接处理的方法 handle
+	Conn      *net.TCPConn   // 当前连接的 TCP 套接字
+	ConnId    uint32         // 当前连接的Id
+	isClosed  bool           // 当前连接的状态
+	ExitChan  chan bool      // 告知当前连接退出的 chan
+	MsgHandle face.MsgHandle // 当前连接处理的方法 handle
 }
 
 // 初始化连接
-func NewConnect(conn *net.TCPConn, connId uint32, router face.Router) *Connect {
+func NewConnect(conn *net.TCPConn, connId uint32, msgHandler face.MsgHandle) *Connect {
 	return &Connect{
-		Conn:     conn,
-		ConnId:   connId,
-		isClosed: false,
-		Router:   router,
-		ExitChan: make(chan bool, 1),
+		Conn:      conn,
+		ConnId:    connId,
+		isClosed:  false,
+		MsgHandle: msgHandler,
+		ExitChan:  make(chan bool, 1),
 	}
 }
 
@@ -75,14 +75,8 @@ func (c *Connect) StartReader() {
 			msg:  msg,
 		}
 
-		// 从路由 Routers 中找到注册绑定 Conn 的对应 Handle
-		go func(request face.Request) {
-			// 执行注册的路由方法
-			c.Router.PreHandle(request)
-			c.Router.Handle(request)
-			c.Router.PostHandle(request)
-		}(req)
-
+		// 从绑定好的消息和对应的处理方法中执行对应的Handle方法
+		go c.MsgHandle.DoMsgHandler(req)
 	}
 }
 

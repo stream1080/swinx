@@ -10,11 +10,11 @@ import (
 
 // Server 的服务接口实现
 type Server struct {
-	Name      string      // 名称
-	IpVersion string      // ip版本
-	IP        string      // ip地址
-	Port      int         // 端口
-	Router    face.Router // 路由
+	Name      string         // 名称
+	IpVersion string         // ip版本
+	IP        string         // ip地址
+	Port      int            // 端口
+	msgHandle face.MsgHandle // 消息管理器
 }
 
 // 初始化 Server 方法
@@ -24,7 +24,7 @@ func NewServer() face.Server {
 		IpVersion: "tcp4",
 		IP:        conf.ServerConfig.Host,
 		Port:      conf.ServerConfig.Port,
-		Router:    nil,
+		msgHandle: NewMsgHandle(),
 	}
 }
 
@@ -61,7 +61,7 @@ func (s *Server) Start() {
 			}
 
 			// 将处理连接到业务方法与 conn 进行绑定
-			dealConn := NewConnect(conn, connId, s.Router)
+			dealConn := NewConnect(conn, connId, s.msgHandle)
 			connId++
 
 			// 启动 conn 的业务处理
@@ -85,7 +85,7 @@ func (s *Server) Serve() {
 }
 
 // 注册路由
-func (s *Server) AddRouter(router face.Router) {
-	s.Router = router
+func (s *Server) AddRouter(msgId uint32, router face.Router) {
+	s.msgHandle.AddRouter(msgId, router)
 	fmt.Println("Add Router Success! ")
 }
