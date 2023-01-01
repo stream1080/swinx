@@ -110,12 +110,8 @@ func (c *Connect) Start() {
 	// 开启用于写回客户端数据流程的 Goroutine
 	go c.StartWriter()
 
-	for {
-		select {
-		case <-c.ExitChan:
-			// 收到退出消息，不再阻塞
-			return
-		}
+	for range c.ExitChan {
+		return
 	}
 }
 
