@@ -44,7 +44,7 @@ func (c *Connect) StartReader() {
 		head := make([]byte, dp.GetHeadLen())
 		_, err := io.ReadFull(c.GetTCPConnect(), head)
 		if err != nil {
-			fmt.Println("read msg head error: ", err)
+			fmt.Println("read msg head error:", err)
 			c.ExitChan <- true
 			continue
 		}
@@ -52,7 +52,7 @@ func (c *Connect) StartReader() {
 		// 拆包，获取 msgId 和 dataLen
 		msg, err := dp.UnPack(head)
 		if err != nil {
-			fmt.Println("unpack error: ", err)
+			fmt.Println("unpack error:", err)
 			c.ExitChan <- true
 			continue
 		}
@@ -63,7 +63,7 @@ func (c *Connect) StartReader() {
 			data = make([]byte, msg.GetDataLen())
 			_, err = io.ReadFull(c.GetTCPConnect(), data)
 			if err != nil {
-				fmt.Println("read msg data error: ", err)
+				fmt.Println("read msg data error:", err)
 				c.ExitChan <- true
 				continue
 			}
@@ -77,8 +77,8 @@ func (c *Connect) StartReader() {
 			msg:  msg,
 		}
 
-		// 从绑定好的消息和对应的处理方法中执行对应的Handle方法
-		go c.MsgHandle.DoMsgHandler(req)
+		// 将消息交给 Worker 处理
+		c.MsgHandle.SendMsgTaskQueue(req)
 	}
 }
 

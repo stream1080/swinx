@@ -78,7 +78,7 @@ func client(msgId uint32) {
 		dp := znet.NewDataPack()
 
 		// 封包
-		msg, err := dp.Pack(znet.NewMessage(msgId, []byte("hello server v0.6")))
+		msg, err := dp.Pack(znet.NewMessage(msgId, []byte("hello tcp server")))
 		if err != nil {
 			fmt.Println("pack error: ", err)
 		}
@@ -86,7 +86,7 @@ func client(msgId uint32) {
 		// 发送数据
 		_, err = conn.Write(msg)
 		if err != nil {
-			fmt.Println("write conn error: ", err)
+			fmt.Println("write conn error:", err)
 			return
 		}
 
@@ -94,14 +94,14 @@ func client(msgId uint32) {
 		head := make([]byte, dp.GetHeadLen())
 		_, err = io.ReadFull(conn, head)
 		if err != nil {
-			fmt.Println("read head error: ", err)
+			fmt.Println("read head error:", err)
 			return
 		}
 
 		// 拆包
 		msgHead, err := dp.UnPack(head)
 		if err != nil {
-			fmt.Println("unpack error: ", err)
+			fmt.Println("unpack error:", err)
 			return
 		}
 
