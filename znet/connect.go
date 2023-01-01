@@ -1,10 +1,11 @@
 package znet
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"net"
 
-	"github.com/stream1080/swinx/conf"
 	"github.com/stream1080/swinx/face"
 )
 
@@ -33,18 +34,45 @@ func (c *Connect) StartReader() {
 	defer c.Stop()
 
 	for {
-		// 读取客户端的数据到 buf
-		buf := make([]byte, conf.ServerConfig.MaxPackageSize)
-		_, err := c.Conn.Read(buf)
+
+		// 创建数据包对象
+		dp := NewDataPack()
+
+		// 获取客户端 msg head
+		head := make([]byte, dp.GetHeadLen())
+		_, err := io.ReadFull(c.GetTCPConnect(), head)
 		if err != nil {
-			fmt.Println("recv buf error ", err)
+			fmt.Println("read msg head error: ", err)
+			c.ExitChan <- true
 			continue
 		}
+
+		// 拆包，获取 msgId 和 dataLen
+		msg, err := dp.UnPack(head)
+		if err != nil {
+			fmt.Println("unpack error: ", err)
+			c.ExitChan <- true
+			continue
+		}
+
+		// 根据 dataLen 读取 data, 放在 msg.Data 中
+		var data []byte
+		if msg.GetDataLen() > 0 {
+			data = make([]byte, msg.GetDataLen())
+			_, err = io.ReadFull(c.GetTCPConnect(), data)
+			if err != nil {
+				fmt.Println("read msg data error: ", err)
+				c.ExitChan <- true
+				continue
+			}
+		}
+
+		msg.SetData(data)
 
 		// 客户端请求的 Request 数据
 		req := &Request{
 			conn: c,
-			data: buf,
+			msg:  msg,
 		}
 
 		// 从路由 Routers 中找到注册绑定 Conn 的对应 Handle
@@ -102,6 +130,26 @@ func (c *Connect) RemoteAddr() net.Addr {
 }
 
 // 发送数据
-func (c *Connect) Send(data []byte) error {
+func (c *Connect) SendMsg(msgId uint32, data []byte) error {
+	if c.isClosed {
+		return errors.New("connect is close when send msg")
+	}
+
+	// 封包
+	dp := NewDataPack()
+	msg, err := dp.Pack(NewMessage(msgId, data))
+	if err != nil {
+		fmt.Printf("pack error:%s msgId: %d\n", err, msgId)
+		return errors.New("pack error")
+	}
+
+	// 回写客户端
+	_, err = c.Conn.Write(msg)
+	if err != nil {
+		fmt.Printf("write msg error: %s, msgId: %d\n", err, msgId)
+		c.ExitChan <- true
+		return errors.New("conn write error")
+	}
+
 	return nil
 }
