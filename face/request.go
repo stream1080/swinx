@@ -4,4 +4,5 @@ package face
 type Request interface {
 	GetConn() Connect // 获取当前连接
 	GetData() []byte  // 获取请求的数据
+	GetMsgId() uint32 // 获取消息Id
 }

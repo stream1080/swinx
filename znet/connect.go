@@ -1,6 +1,7 @@
 package znet
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -129,6 +130,26 @@ func (c *Connect) RemoteAddr() net.Addr {
 }
 
 // 发送数据
-func (c *Connect) Send(data []byte) error {
+func (c *Connect) SendMsg(msgId uint32, data []byte) error {
+	if c.isClosed {
+		return errors.New("connect is close when send msg")
+	}
+
+	// 封包
+	dp := NewDataPack()
+	msg, err := dp.Pack(NewMessage(msgId, data))
+	if err != nil {
+		fmt.Printf("pack error:%s msgId: %d\n", err, msgId)
+		return errors.New("pack error")
+	}
+
+	// 回写客户端
+	_, err = c.Conn.Write(msg)
+	if err != nil {
+		fmt.Printf("write msg error: %s, msgId: %d\n", err, msgId)
+		c.ExitChan <- true
+		return errors.New("conn write error")
+	}
+
 	return nil
 }
