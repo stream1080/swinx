@@ -77,8 +77,8 @@ func (c *Connect) StartReader() {
 			msg:  msg,
 		}
 
-		// 从绑定好的消息和对应的处理方法中执行对应的Handle方法
-		go c.MsgHandle.DoMsgHandler(req)
+		// 将消息交给 Worker 处理
+		c.MsgHandle.SendMsgTaskQueue(req)
 	}
 }
 
