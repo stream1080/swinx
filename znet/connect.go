@@ -7,6 +7,7 @@ import (
 	"net"
 	"sync"
 
+	"github.com/stream1080/swinx/conf"
 	"github.com/stream1080/swinx/face"
 )
 
@@ -17,6 +18,7 @@ type Connect struct {
 	isClosed     bool                   // 当前连接的状态
 	ExitChan     chan bool              // 告知当前连接退出的 chan
 	msgChan      chan []byte            // 无缓冲管道，用于读、写两个 goroutine 之间的消息通信
+	msgBuffChan  chan []byte            // 有缓冲管道，用于读、写两个 goroutine 之间的消息通信
 	MsgHandle    face.MsgHandle         // 当前连接处理的方法 handle
 	propertyMap  map[string]interface{} // 连接属性
 	propertyLock sync.RWMutex           // 保护连接属性修改的锁
@@ -32,6 +34,7 @@ func NewConnect(server face.Server, conn *net.TCPConn, connId uint32, msgHandler
 		MsgHandle:   msgHandler,
 		ExitChan:    make(chan bool, 1),
 		msgChan:     make(chan []byte),
+		msgBuffChan: make(chan []byte, conf.ServerConfig.MaxMsgChanLen),
 		propertyMap: make(map[string]interface{}),
 	}
 
@@ -105,6 +108,17 @@ func (c *Connect) StartWriter() {
 			if _, err := c.Conn.Write(data); err != nil {
 				fmt.Println("[Connect Writer exit] Send Data error:, ", err)
 				return
+			}
+		case data, ok := <-c.msgBuffChan:
+			if ok {
+				// 有数据要写给客户端
+				if _, err := c.Conn.Write(data); err != nil {
+					fmt.Println("[Connect Writer exit] Send Buff Data error:, ", err)
+					return
+				}
+			} else {
+				fmt.Println("msgBuffChan is Closed")
+				break
 			}
 		case <-c.ExitChan:
 			// conn 关闭
@@ -185,6 +199,26 @@ func (c *Connect) SendMsg(msgId uint32, data []byte) error {
 
 	// 回写客户端，发送给 Channel 供 Writer 读取
 	c.msgChan <- msg
+
+	return nil
+}
+
+// 发送消息, 有缓冲
+func (c *Connect) SendBuffMsg(msgId uint32, data []byte) error {
+	if c.isClosed {
+		return errors.New("connect is close when send buff msg")
+	}
+
+	// 封包
+	dp := NewDataPack()
+	msg, err := dp.Pack(NewMessage(msgId, data))
+	if err != nil {
+		fmt.Printf("pack error:%s msgId: %d\n", err, msgId)
+		return errors.New("pack error")
+	}
+
+	// 回写客户端，发送给 Channel 供 Writer 读取
+	c.msgBuffChan <- msg
 
 	return nil
 }
