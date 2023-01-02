@@ -5,30 +5,34 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"sync"
 
 	"github.com/stream1080/swinx/face"
 )
 
 type Connect struct {
-	TcpServer face.Server    // 当前连接隶属的 server
-	Conn      *net.TCPConn   // 当前连接的 TCP 套接字
-	ConnId    uint32         // 当前连接的Id
-	isClosed  bool           // 当前连接的状态
-	ExitChan  chan bool      // 告知当前连接退出的 chan
-	msgChan   chan []byte    // 无缓冲管道，用于读、写两个 goroutine 之间的消息通信
-	MsgHandle face.MsgHandle // 当前连接处理的方法 handle
+	TcpServer    face.Server            // 当前连接隶属的 server
+	Conn         *net.TCPConn           // 当前连接的 TCP 套接字
+	ConnId       uint32                 // 当前连接的Id
+	isClosed     bool                   // 当前连接的状态
+	ExitChan     chan bool              // 告知当前连接退出的 chan
+	msgChan      chan []byte            // 无缓冲管道，用于读、写两个 goroutine 之间的消息通信
+	MsgHandle    face.MsgHandle         // 当前连接处理的方法 handle
+	propertyMap  map[string]interface{} // 连接属性
+	propertyLock sync.RWMutex           // 保护连接属性修改的锁
 }
 
 // 初始化连接
 func NewConnect(server face.Server, conn *net.TCPConn, connId uint32, msgHandler face.MsgHandle) *Connect {
 	c := &Connect{
-		TcpServer: server,
-		Conn:      conn,
-		ConnId:    connId,
-		isClosed:  false,
-		MsgHandle: msgHandler,
-		ExitChan:  make(chan bool, 1),
-		msgChan:   make(chan []byte),
+		TcpServer:   server,
+		Conn:        conn,
+		ConnId:      connId,
+		isClosed:    false,
+		MsgHandle:   msgHandler,
+		ExitChan:    make(chan bool, 1),
+		msgChan:     make(chan []byte),
+		propertyMap: make(map[string]interface{}),
 	}
 
 	// 将新创建的 Conn 添加到链接管理器中
@@ -139,11 +143,11 @@ func (c *Connect) Stop() {
 	// 关闭连接
 	c.Conn.Close()
 
-	// 告知 writer 关闭
-	c.ExitChan <- true
-
 	// 删除连接管理器的连接
 	c.TcpServer.GetConnMgr().Remove(c.GetConnId())
+
+	// 告知 writer 关闭
+	c.ExitChan <- true
 
 	// 回收资源
 	close(c.ExitChan)
@@ -183,4 +187,33 @@ func (c *Connect) SendMsg(msgId uint32, data []byte) error {
 	c.msgChan <- msg
 
 	return nil
+}
+
+// 设置链接属性
+func (c *Connect) SetProperty(key string, value interface{}) {
+	c.propertyLock.Lock()
+	defer c.propertyLock.Unlock()
+
+	c.propertyMap[key] = value
+}
+
+// 获取链接属性
+func (c *Connect) GetProperty(key string) (interface{}, error) {
+	c.propertyLock.RLock()
+	defer c.propertyLock.RUnlock()
+
+	// 判断是否存在
+	if value, ok := c.propertyMap[key]; ok {
+		return value, nil
+	}
+
+	return nil, errors.New("property not found")
+}
+
+// 移除链接属性
+func (c *Connect) RemoveProperty(key string) {
+	c.propertyLock.Lock()
+	defer c.propertyLock.Unlock()
+
+	delete(c.propertyMap, key)
 }
