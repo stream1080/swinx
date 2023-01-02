@@ -17,6 +17,7 @@ type Config struct {
 
 	WorkerPoolSize    uint32 // worker 池的大小
 	MaxWorkerTaskSize uint32 // 最大任务数量
+	MaxMsgChanLen     uint32 // SendBuffMsg 发送消息的缓冲最大长度
 }
 
 // 全局对象
@@ -45,6 +46,7 @@ func init() {
 		MaxPackageSize:    4096,
 		WorkerPoolSize:    10,
 		MaxWorkerTaskSize: 1024,
+		MaxMsgChanLen:     1024,
 	}
 
 	// 使用自定义配置
