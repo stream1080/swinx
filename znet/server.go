@@ -10,18 +10,18 @@ import (
 
 // Server 的服务接口实现
 type Server struct {
-	Name        string                  // 名称
-	IpVersion   string                  // ip版本
-	IP          string                  // ip地址
-	Port        int                     // 端口
-	msgHandle   face.MsgHandle          // 消息管理器
-	ConnMgr     face.ConnManager        // 连接管理器
-	OnConnStart func(conn face.Connect) // 创建连接后自动调用的 hook 函数
-	OnConnStop  func(conn face.Connect) // 销毁连接后自动调用的 hook 函数
+	Name        string                   // 名称
+	IpVersion   string                   // ip版本
+	IP          string                   // ip地址
+	Port        int                      // 端口
+	msgHandle   face.IMsgHandle          // 消息管理器
+	ConnMgr     face.IConnManager        // 连接管理器
+	OnConnStart func(conn face.IConnect) // 创建连接后自动调用的 hook 函数
+	OnConnStop  func(conn face.IConnect) // 销毁连接后自动调用的 hook 函数
 }
 
 // 初始化 Server 方法
-func NewServer() face.Server {
+func NewServer() face.IServer {
 	return &Server{
 		Name:      conf.ServerConfig.Name,
 		IpVersion: "tcp4",
@@ -102,28 +102,28 @@ func (s *Server) Serve() {
 }
 
 // 注册路由
-func (s *Server) AddRouter(msgId uint32, router face.Router) {
+func (s *Server) AddRouter(msgId uint32, router face.IRouter) {
 	s.msgHandle.AddRouter(msgId, router)
 	fmt.Println("Add Router Success! ")
 }
 
 // 获取连接管理器
-func (s *Server) GetConnMgr() face.ConnManager {
+func (s *Server) GetConnMgr() face.IConnManager {
 	return s.ConnMgr
 }
 
 // 注册创建连接的 hook 函数
-func (s *Server) SetOnConnStart(hookFunc func(conn face.Connect)) {
+func (s *Server) SetOnConnStart(hookFunc func(conn face.IConnect)) {
 	s.OnConnStart = hookFunc
 }
 
 // 注册销毁连接的 hook 函数
-func (s *Server) SetOnConnStop(hookFunc func(conn face.Connect)) {
+func (s *Server) SetOnConnStop(hookFunc func(conn face.IConnect)) {
 	s.OnConnStop = hookFunc
 }
 
 // 调用创建连接的 hook 函数
-func (s *Server) CallOnConnStart(conn face.Connect) {
+func (s *Server) CallOnConnStart(conn face.IConnect) {
 	if s.OnConnStart != nil {
 		fmt.Print("[CallOnConnStart] ====> ")
 		s.OnConnStart(conn)
@@ -131,7 +131,7 @@ func (s *Server) CallOnConnStart(conn face.Connect) {
 }
 
 // 调用销毁连接的 hook 函数
-func (s *Server) CallOnConnStop(conn face.Connect) {
+func (s *Server) CallOnConnStop(conn face.IConnect) {
 	if s.OnConnStop != nil {
 		fmt.Print("[CallOnConnStop] ====> ")
 		s.OnConnStop(conn)

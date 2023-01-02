@@ -10,19 +10,19 @@ import (
 
 // 连接管理
 type ConnManager struct {
-	connMap map[uint32]face.Connect // 管理的连接信息
-	lock    sync.RWMutex            // 读写锁
+	connMap map[uint32]face.IConnect // 管理的连接信息
+	lock    sync.RWMutex             // 读写锁
 }
 
 // 创建连接管理器
 func NewConnManager() *ConnManager {
 	return &ConnManager{
-		connMap: make(map[uint32]face.Connect),
+		connMap: make(map[uint32]face.IConnect),
 	}
 }
 
 // 添加连接
-func (cm *ConnManager) Add(conn face.Connect) {
+func (cm *ConnManager) Add(conn face.IConnect) {
 
 	// 加写锁, 保护共享资源 Map
 	cm.lock.Lock()
@@ -48,7 +48,7 @@ func (cm *ConnManager) Remove(connId uint32) {
 }
 
 // 获取连接
-func (cm *ConnManager) Get(connId uint32) (face.Connect, error) {
+func (cm *ConnManager) Get(connId uint32) (face.IConnect, error) {
 
 	// 加锁, 保护共享资源 Map
 	cm.lock.RLock()

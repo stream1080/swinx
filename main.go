@@ -29,7 +29,7 @@ type PingRouter struct {
 }
 
 // 处理业务的主方法 Hook
-func (p *PingRouter) Handle(request face.Request) {
+func (p *PingRouter) Handle(request face.IRequest) {
 	fmt.Println("Call Router Handle...")
 
 	//先读取客户端的数据，再回写客户端
@@ -46,7 +46,7 @@ type PongRouter struct {
 }
 
 // 处理业务的主方法 Hook
-func (p *PongRouter) Handle(request face.Request) {
+func (p *PongRouter) Handle(request face.IRequest) {
 	fmt.Println("Call Router Handle...")
 
 	//先读取客户端的数据，再回写客户端
@@ -59,7 +59,7 @@ func (p *PongRouter) Handle(request face.Request) {
 }
 
 // 创建连接的时候执行
-func DoConnectBegin(conn face.Connect) {
+func DoConnectBegin(conn face.IConnect) {
 	fmt.Println("DoConnecionBegin is Called ... ")
 
 	// 设置连接属性
@@ -74,7 +74,7 @@ func DoConnectBegin(conn face.Connect) {
 }
 
 // 连接断开的时候执行
-func DoConnectLost(conn face.Connect) {
+func DoConnectLost(conn face.IConnect) {
 	fmt.Println("DoConneciotnLost is Called ... ")
 
 	if value, err := conn.GetProperty("client-name"); err != nil {

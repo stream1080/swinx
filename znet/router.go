@@ -10,10 +10,10 @@ type BaseRouter struct{}
 // 所以 Router 全部继承 BaseRouter 的好处是，不需要实现全部方法也可以实例化
 
 // 处理业务前的钩子方法 Hook
-func (b *BaseRouter) PreHandle(request face.Request) {}
+func (b *BaseRouter) PreHandle(request face.IRequest) {}
 
 // 处理业务的主方法 Hook
-func (b *BaseRouter) Handle(request face.Request) {}
+func (b *BaseRouter) Handle(request face.IRequest) {}
 
 // 处理业务后的钩子方法 Hook
-func (b *BaseRouter) PostHandle(request face.Request) {}
+func (b *BaseRouter) PostHandle(request face.IRequest) {}

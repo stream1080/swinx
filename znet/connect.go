@@ -12,20 +12,20 @@ import (
 )
 
 type Connect struct {
-	TcpServer    face.Server            // 当前连接隶属的 server
+	TcpServer    face.IServer           // 当前连接隶属的 server
 	Conn         *net.TCPConn           // 当前连接的 TCP 套接字
 	ConnId       uint32                 // 当前连接的Id
 	isClosed     bool                   // 当前连接的状态
 	ExitChan     chan bool              // 告知当前连接退出的 chan
 	msgChan      chan []byte            // 无缓冲管道，用于读、写两个 goroutine 之间的消息通信
 	msgBuffChan  chan []byte            // 有缓冲管道，用于读、写两个 goroutine 之间的消息通信
-	MsgHandle    face.MsgHandle         // 当前连接处理的方法 handle
+	MsgHandle    face.IMsgHandle        // 当前连接处理的方法 handle
 	propertyMap  map[string]interface{} // 连接属性
 	propertyLock sync.RWMutex           // 保护连接属性修改的锁
 }
 
 // 初始化连接
-func NewConnect(server face.Server, conn *net.TCPConn, connId uint32, msgHandler face.MsgHandle) *Connect {
+func NewConnect(server face.IServer, conn *net.TCPConn, connId uint32, msgHandler face.IMsgHandle) *Connect {
 	c := &Connect{
 		TcpServer:   server,
 		Conn:        conn,
