@@ -93,6 +93,7 @@ func (c *Connect) StartReader() {
 func (c *Connect) StartWriter() {
 	fmt.Println("[Writer Goroutine is running]")
 	defer fmt.Println("[Connect Writer exit] , RemoteAddr:", c.RemoteAddr().String(), "connId:", c.ConnId)
+	defer c.Stop()
 
 	for {
 		select {
@@ -117,9 +118,8 @@ func (c *Connect) Start() {
 	// 开启用于写回客户端数据流程的 Goroutine
 	go c.StartWriter()
 
-	for range c.ExitChan {
-		return
-	}
+	// 创建连接后，执行钩子方法
+	c.TcpServer.CallOnConnStart(c)
 }
 
 // 关闭连接
@@ -132,6 +132,9 @@ func (c *Connect) Stop() {
 	}
 
 	c.isClosed = true
+
+	// 关闭连接前，执行钩子方法
+	c.TcpServer.CallOnConnStop(c)
 
 	// 关闭连接
 	c.Conn.Close()
