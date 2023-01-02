@@ -68,12 +68,13 @@ func (s *Server) Start() {
 
 			// 是否大于最大连接数
 			if s.ConnMgr.Count() >= conf.ServerConfig.MaxConn {
+				fmt.Println("too many conn, maxConn:", conf.ServerConfig.MaxConn)
 				conn.Close()
 				continue
 			}
 
 			// 将处理连接到业务方法与 conn 进行绑定
-			dealConn := NewConnect(conn, connId, s.msgHandle)
+			dealConn := NewConnect(s, conn, connId, s.msgHandle)
 			connId++
 
 			// 启动 conn 的业务处理
@@ -84,7 +85,9 @@ func (s *Server) Start() {
 
 // 停止服务器
 func (s *Server) Stop() {
-	// TODO 回收资源
+	fmt.Println("[stop server]", s.Name)
+	// 回收资源
+	s.GetConnMgr().Clear()
 }
 
 // 运行服务器
