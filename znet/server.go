@@ -10,11 +10,12 @@ import (
 
 // Server 的服务接口实现
 type Server struct {
-	Name      string         // 名称
-	IpVersion string         // ip版本
-	IP        string         // ip地址
-	Port      int            // 端口
-	msgHandle face.MsgHandle // 消息管理器
+	Name      string           // 名称
+	IpVersion string           // ip版本
+	IP        string           // ip地址
+	Port      int              // 端口
+	msgHandle face.MsgHandle   // 消息管理器
+	ConnMgr   face.ConnManager // 连接管理器
 }
 
 // 初始化 Server 方法
@@ -25,6 +26,7 @@ func NewServer() face.Server {
 		IP:        conf.ServerConfig.Host,
 		Port:      conf.ServerConfig.Port,
 		msgHandle: NewMsgHandle(),
+		ConnMgr:   NewConnManager(),
 	}
 }
 
@@ -64,8 +66,15 @@ func (s *Server) Start() {
 				continue
 			}
 
+			// 是否大于最大连接数
+			if s.ConnMgr.Count() >= conf.ServerConfig.MaxConn {
+				fmt.Println("too many conn, maxConn:", conf.ServerConfig.MaxConn)
+				conn.Close()
+				continue
+			}
+
 			// 将处理连接到业务方法与 conn 进行绑定
-			dealConn := NewConnect(conn, connId, s.msgHandle)
+			dealConn := NewConnect(s, conn, connId, s.msgHandle)
 			connId++
 
 			// 启动 conn 的业务处理
@@ -76,7 +85,9 @@ func (s *Server) Start() {
 
 // 停止服务器
 func (s *Server) Stop() {
-	// TODO 回收资源
+	fmt.Println("[stop server]", s.Name)
+	// 回收资源
+	s.GetConnMgr().Clear()
 }
 
 // 运行服务器
@@ -92,4 +103,9 @@ func (s *Server) Serve() {
 func (s *Server) AddRouter(msgId uint32, router face.Router) {
 	s.msgHandle.AddRouter(msgId, router)
 	fmt.Println("Add Router Success! ")
+}
+
+// 获取连接管理器
+func (s *Server) GetConnMgr() face.ConnManager {
+	return s.ConnMgr
 }

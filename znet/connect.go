@@ -10,6 +10,7 @@ import (
 )
 
 type Connect struct {
+	TcpServer face.Server    // 当前连接隶属的 server
 	Conn      *net.TCPConn   // 当前连接的 TCP 套接字
 	ConnId    uint32         // 当前连接的Id
 	isClosed  bool           // 当前连接的状态
@@ -19,8 +20,9 @@ type Connect struct {
 }
 
 // 初始化连接
-func NewConnect(conn *net.TCPConn, connId uint32, msgHandler face.MsgHandle) *Connect {
-	return &Connect{
+func NewConnect(server face.Server, conn *net.TCPConn, connId uint32, msgHandler face.MsgHandle) *Connect {
+	c := &Connect{
+		TcpServer: server,
 		Conn:      conn,
 		ConnId:    connId,
 		isClosed:  false,
@@ -28,6 +30,11 @@ func NewConnect(conn *net.TCPConn, connId uint32, msgHandler face.MsgHandle) *Co
 		ExitChan:  make(chan bool, 1),
 		msgChan:   make(chan []byte),
 	}
+
+	// 将新创建的 Conn 添加到链接管理器中
+	c.TcpServer.GetConnMgr().Add(c)
+
+	return c
 }
 
 func (c *Connect) StartReader() {
@@ -124,13 +131,20 @@ func (c *Connect) Stop() {
 		return
 	}
 
-	c.isClosed = false
+	c.isClosed = true
 
 	// 关闭连接
 	c.Conn.Close()
 
+	// 告知 writer 关闭
+	c.ExitChan <- true
+
+	// 删除连接管理器的连接
+	c.TcpServer.GetConnMgr().Remove(c.GetConnId())
+
 	// 回收资源
 	close(c.ExitChan)
+	close(c.msgChan)
 }
 
 // 获取当前连接绑定的 socket conn
