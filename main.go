@@ -5,40 +5,27 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"os"
 	"time"
 
 	"github.com/stream1080/swinx/face"
 	"github.com/stream1080/swinx/znet"
 )
 
-var ()
-
 func main() {
 
-	var endpoint string
-
-	flag.StringVar(&endpoint, "t", "", "input endpoint, server、client1 or client2")
+	endpoint := flag.String("t", "", "input endpoint, server、client1 or client2")
 	flag.Parse()
-	if endpoint == "" {
-		flag.Usage()
-		os.Exit(1)
-	}
 
-	if endpoint == "server" {
+	switch *endpoint {
+	case "server":
 		server()
-	}
-
-	if endpoint == "client1" {
+	case "client1":
 		client(1)
-	}
-
-	if endpoint == "client2" {
+	case "client2":
 		client(2)
+	default:
+		flag.Usage()
 	}
-
-	flag.Usage()
-
 }
 
 type PingRouter struct {
