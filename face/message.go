@@ -1,7 +1,7 @@
 package face
 
 // 将请求的一个消息封装到 message 中，定义抽象层接口
-type Message interface {
+type IMessage interface {
 	GetDataLen() uint32 //获取消息数据段长度
 	GetMsgId() uint32   //获取消息ID
 	GetData() []byte    //获取消息内容

@@ -25,7 +25,7 @@ var ServerConfig *Config
 
 // 加载配置
 func (s *Config) LoadConfig() {
-	conf, err := os.ReadFile("conf/conf.json")
+	conf, err := os.ReadFile("conf/server.json")
 	if err != nil {
 		panic(err)
 	}

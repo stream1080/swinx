@@ -3,7 +3,7 @@ package face
 import "net"
 
 // 连接模块的接口
-type Connect interface {
+type IConnect interface {
 	Start()                                      // 启动连接
 	Stop()                                       // 关闭连接
 	GetTCPConnect() *net.TCPConn                 // 获取当前连接绑定的 socket conn

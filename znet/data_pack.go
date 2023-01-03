@@ -22,7 +22,7 @@ func (d *DataPack) GetHeadLen() uint32 {
 }
 
 // 封包方法, |dataLen|msgId|data|
-func (d *DataPack) Pack(msg face.Message) ([]byte, error) {
+func (d *DataPack) Pack(msg face.IMessage) ([]byte, error) {
 	// 创建一个存放bytes字节的缓冲
 	dataBuff := bytes.NewBuffer([]byte{})
 
@@ -48,7 +48,7 @@ func (d *DataPack) Pack(msg face.Message) ([]byte, error) {
 }
 
 // 拆包方法
-func (d *DataPack) UnPack(byteData []byte) (face.Message, error) {
+func (d *DataPack) UnPack(byteData []byte) (face.IMessage, error) {
 	// 创建一个从输入二进制数据的ioReader
 	dataBuff := bytes.NewReader(byteData)
 
