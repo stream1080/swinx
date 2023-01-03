@@ -1,25 +1,28 @@
 SHELL = /bin/bash
 
 help:
-	@echo "make 运行程序件"
+	@echo "make 运行程序"
 	@echo "make build 编译go代码生成二进制文件"
 	@echo "make clean 清理中间目标文件"
 	@echo "make test 执行测试"
+	@echo "make server 启动服务端"
+	@echo "make client1 启动客户端1"
+	@echo "make client1 启动客户端2"
 
 build: clean
-	go build
+	@go build
 
 clean:
-	go clean
+	@go clean
 
 test:
-	go test
+	@go test
 
 server:
-	cd examples && go run server.go
+	@go run main.go -t server
 
 client1:
-	cd examples && go run client1.go
+	@go run main.go -t client1
 
 client2:
-	cd examples && go run client2.go
+	@go run main.go -t client2
