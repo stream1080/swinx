@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/stream1080/swinx/face"
+	"github.com/stream1080/swinx/pack"
 	"github.com/stream1080/swinx/znet"
 )
 
@@ -116,10 +117,10 @@ func client(msgId uint32) {
 
 	for {
 
-		dp := znet.NewDataPack()
+		dp := pack.NewDataPack()
 
 		// 封包
-		msg, err := dp.Pack(znet.NewMessage(msgId, []byte("hello tcp server")))
+		msg, err := dp.Pack(pack.NewMessage(msgId, []byte("hello tcp server")))
 		if err != nil {
 			fmt.Println("pack error: ", err)
 		}
@@ -147,7 +148,7 @@ func client(msgId uint32) {
 		}
 
 		if msgHead.GetDataLen() > 0 {
-			msg := msgHead.(*znet.Message)
+			msg := msgHead.(*pack.Message)
 			msg.Data = make([]byte, msg.GetDataLen())
 
 			_, err = io.ReadFull(conn, msg.Data)

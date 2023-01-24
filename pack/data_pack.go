@@ -1,4 +1,4 @@
-package znet
+package pack
 
 import (
 	"bytes"

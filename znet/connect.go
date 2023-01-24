@@ -9,6 +9,7 @@ import (
 
 	"github.com/stream1080/swinx/conf"
 	"github.com/stream1080/swinx/face"
+	"github.com/stream1080/swinx/pack"
 )
 
 type Connect struct {
@@ -52,7 +53,7 @@ func (c *Connect) StartReader() {
 	for {
 
 		// 创建数据包对象
-		dp := NewDataPack()
+		dp := pack.NewDataPack()
 
 		// 获取客户端 msg head
 		head := make([]byte, dp.GetHeadLen())
@@ -190,8 +191,8 @@ func (c *Connect) SendMsg(msgId uint32, data []byte) error {
 	}
 
 	// 封包
-	dp := NewDataPack()
-	msg, err := dp.Pack(NewMessage(msgId, data))
+	dp := pack.NewDataPack()
+	msg, err := dp.Pack(pack.NewMessage(msgId, data))
 	if err != nil {
 		fmt.Printf("pack error:%s msgId: %d\n", err, msgId)
 		return errors.New("pack error")
@@ -210,8 +211,8 @@ func (c *Connect) SendBuffMsg(msgId uint32, data []byte) error {
 	}
 
 	// 封包
-	dp := NewDataPack()
-	msg, err := dp.Pack(NewMessage(msgId, data))
+	dp := pack.NewDataPack()
+	msg, err := dp.Pack(pack.NewMessage(msgId, data))
 	if err != nil {
 		fmt.Printf("pack error:%s msgId: %d\n", err, msgId)
 		return errors.New("pack error")

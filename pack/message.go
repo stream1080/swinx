@@ -1,4 +1,4 @@
-package znet
+package pack
 
 type Message struct {
 	Id      uint32 //消息的ID
