@@ -22,17 +22,38 @@ type Server struct {
 	packet      face.IDataPack           // 封包拆包类实例
 }
 
+var swinxLogo = `                                        
+                  _           
+   ______      __(_)___  _  __
+  / ___/ | /| / / / __ \| |/_/
+ (__  )| |/ |/ / / / / />  <  
+/____/ |__/|__/_/_/ /_/_/|_|  
+                            `
+
+func printLogo() {
+	fmt.Println(swinxLogo)
+}
+
 // 初始化 Server 方法
-func NewServer() face.IServer {
-	return &Server{
+func NewServer(opts ...Option) face.IServer {
+	printLogo()
+
+	server := &Server{
 		Name:      conf.ServerConfig.Name,
 		IpVersion: "tcp4",
 		IP:        conf.ServerConfig.Host,
 		Port:      conf.ServerConfig.Port,
 		msgHandle: NewMsgHandle(),
 		ConnMgr:   NewConnManager(),
-		packet:    pack.NewDataPack(),
+		packet:    pack.Factory().NewPack(face.SwinxDataPack),
 	}
+
+	for _, opt := range opts {
+		opt(server)
+	}
+
+	return server
+
 }
 
 // 启动服务器
