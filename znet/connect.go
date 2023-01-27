@@ -52,8 +52,8 @@ func (c *Connect) StartReader() {
 
 	for {
 
-		// 创建数据包对象
-		dp := pack.NewDataPack()
+		// 获取数据包对象
+		dp := c.TcpServer.Packet()
 
 		// 获取客户端 msg head
 		head := make([]byte, dp.GetHeadLen())
@@ -191,7 +191,7 @@ func (c *Connect) SendMsg(msgId uint32, data []byte) error {
 	}
 
 	// 封包
-	dp := pack.NewDataPack()
+	dp := c.TcpServer.Packet()
 	msg, err := dp.Pack(pack.NewMessage(msgId, data))
 	if err != nil {
 		fmt.Printf("pack error:%s msgId: %d\n", err, msgId)
@@ -211,7 +211,7 @@ func (c *Connect) SendBuffMsg(msgId uint32, data []byte) error {
 	}
 
 	// 封包
-	dp := pack.NewDataPack()
+	dp := c.TcpServer.Packet()
 	msg, err := dp.Pack(pack.NewMessage(msgId, data))
 	if err != nil {
 		fmt.Printf("pack error:%s msgId: %d\n", err, msgId)

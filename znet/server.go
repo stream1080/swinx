@@ -6,6 +6,7 @@ import (
 
 	"github.com/stream1080/swinx/conf"
 	"github.com/stream1080/swinx/face"
+	"github.com/stream1080/swinx/pack"
 )
 
 // Server 的服务接口实现
@@ -18,6 +19,7 @@ type Server struct {
 	ConnMgr     face.IConnManager        // 连接管理器
 	OnConnStart func(conn face.IConnect) // 创建连接后自动调用的 hook 函数
 	OnConnStop  func(conn face.IConnect) // 销毁连接后自动调用的 hook 函数
+	packet      face.IDataPack           // 封包拆包类实例
 }
 
 // 初始化 Server 方法
@@ -29,6 +31,7 @@ func NewServer() face.IServer {
 		Port:      conf.ServerConfig.Port,
 		msgHandle: NewMsgHandle(),
 		ConnMgr:   NewConnManager(),
+		packet:    pack.NewDataPack(),
 	}
 }
 
@@ -128,6 +131,10 @@ func (s *Server) CallOnConnStart(conn face.IConnect) {
 		fmt.Print("[CallOnConnStart] ====> ")
 		s.OnConnStart(conn)
 	}
+}
+
+func (s *Server) Packet() face.IDataPack {
+	return s.packet
 }
 
 // 调用销毁连接的 hook 函数
