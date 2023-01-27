@@ -6,6 +6,7 @@ import (
 
 	"github.com/stream1080/swinx/conf"
 	"github.com/stream1080/swinx/face"
+	"github.com/stream1080/swinx/pack"
 )
 
 // Server 的服务接口实现
@@ -30,6 +31,7 @@ func NewServer() face.IServer {
 		Port:      conf.ServerConfig.Port,
 		msgHandle: NewMsgHandle(),
 		ConnMgr:   NewConnManager(),
+		packet:    pack.NewDataPack(),
 	}
 }
 
@@ -129,6 +131,10 @@ func (s *Server) CallOnConnStart(conn face.IConnect) {
 		fmt.Print("[CallOnConnStart] ====> ")
 		s.OnConnStart(conn)
 	}
+}
+
+func (s *Server) Packet() face.IDataPack {
+	return s.packet
 }
 
 // 调用销毁连接的 hook 函数
