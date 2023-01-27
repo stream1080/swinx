@@ -18,6 +18,7 @@ type Server struct {
 	ConnMgr     face.IConnManager        // 连接管理器
 	OnConnStart func(conn face.IConnect) // 创建连接后自动调用的 hook 函数
 	OnConnStop  func(conn face.IConnect) // 销毁连接后自动调用的 hook 函数
+	packet      face.IDataPack           // 封包拆包类实例
 }
 
 // 初始化 Server 方法
