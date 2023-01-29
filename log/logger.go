@@ -194,14 +194,14 @@ func (log *Logger) OutPut(level int, s string) error {
 
 // ====> Debug <====
 func (log *Logger) Debugf(format string, v ...interface{}) {
-	if log.debugClose == true {
+	if log.debugClose {
 		return
 	}
 	_ = log.OutPut(LogDebug, fmt.Sprintf(format, v...))
 }
 
 func (log *Logger) Debug(v ...interface{}) {
-	if log.debugClose == true {
+	if log.debugClose {
 		return
 	}
 	_ = log.OutPut(LogDebug, fmt.Sprintln(v...))
