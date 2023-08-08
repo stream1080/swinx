@@ -1,3 +1,10 @@
+[![Build Status](https://github.com/stream1080/swinx/actions/workflows/go.yml/badge.svg)](https://github.com/stream1080/swinx/actions?query=branch%3Amaster) 
+[![Go Report Card](https://goreportcard.com/badge/github.com/stream1080/swinx)](https://goreportcard.com/report/github.com/stream1080/swinx)
+![license](https://img.shields.io/github/license/stream1080/swinx)
+[![Go Reference](https://pkg.go.dev/badge/github.com/stream1080/swinx.svg)](https://pkg.go.dev/github.com/stream1080/swinx)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/stream1080/swinx)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/stream1080/swinx)
+
 ## 轻量级 TCP 服务器框架 swinx
 Swinx 是一个 Go 语言实现的轻量级服务器框架，它可以快速开发基于网络通信的应用程序。
 
